@@ -10,6 +10,7 @@
 #define SPEED 0.125
 
 void readKeyboard(GLFWwindow *window, float *x_direction, float *y_direction);
+void monitor_callback(GLFWmonitor* monitor, int event);
 
 int main()
 {
@@ -31,7 +32,7 @@ int main()
     if(!gladLoadGL(glfwGetProcAddress)) {
         exit(EXIT_FAILURE);
     }
-    glViewport(0, 0, 420, 420);
+    glfwSetMonitorCallback(monitor_callback);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -134,7 +135,7 @@ int main()
 
     int width, height, nrChannels;
     stbi_set_flip_vertically_on_load(GL_TRUE);
-    unsigned char *img_data = stbi_load("src/move.png", &width, &height, &nrChannels, 0);
+    unsigned char *img_data = stbi_load("sprite_fire.png", &width, &height, &nrChannels, 0);
     if(!img_data) {
         fprintf(stderr, "Failed loading image!\n");
         glfwTerminate();
@@ -145,8 +146,8 @@ int main()
 
     stbi_image_free(img_data);
 
-    float n_x_frames = 6.0f, n_y_frames = 1.0f;
-    float uv_x = 0.0f, uv_y = 0.0f;
+    float n_x_frames = 8.0f, n_y_frames = 3.0f;
+    float uv_x = 0.0f, uv_y = 1.0f;
     /* END_TODO */
 
     /* TODO */
@@ -169,10 +170,6 @@ int main()
             uv_x += 1.0;
             if(uv_x >= n_x_frames) {
                 uv_x = 0.0;
-                uv_y -= 1.0;
-                if(uv_y < 0.0) {
-                    uv_y = n_y_frames - 1.0;
-                }
             }
         }
         /* END_TODO */
@@ -214,5 +211,20 @@ void readKeyboard(GLFWwindow *window, float *x_direction, float *y_direction)
     }
     if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
         *x_direction += SPEED;
+    }
+}
+
+void monitor_callback(GLFWmonitor* monitor, int event)
+{
+    if (event == GLFW_CONNECTED)
+    {
+        // The monitor was connected
+        float xscale, yscale;
+        glfwGetMonitorContentScale(monitor, &xscale, &yscale);
+        glViewport(0, 0, 420*xscale, 420*yscale);
+    }
+    else if (event == GLFW_DISCONNECTED)
+    {
+        // The monitor was disconnected
     }
 }
